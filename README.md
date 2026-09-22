@@ -1,4 +1,4 @@
-# Rydex
+# DriveFlow
 
 A modern full-stack web application built with **Next.js**, **TypeScript**, **Tailwind CSS**, **MongoDB**, and **NextAuth.js**.
 
@@ -28,19 +28,19 @@ Before getting started, make sure you have the following installed:
 Install all dependencies with one command:
 
 ```bash
-npm install
+npx create-next-app@latest
 ```
 
 This installs the following packages (as defined in `package.json`):
 
 **Runtime dependencies:**
 ```bash
-npm install bcryptjs mongoose next next-auth react react-dom
+npm i bcryptjs mongoose
 ```
 
 **Development dependencies:**
 ```bash
-npm install -D @tailwindcss/postcss @types/node @types/react @types/react-dom eslint eslint-config-next tailwindcss typescript
+npm install next-auth@beta
 ```
 
 ## Environment Variables
@@ -51,7 +51,7 @@ Create a `.env.local` file in the project root:
 # MongoDB Connection
 MONGODB_USERNAME="your_mongodb_username"
 MONGODB_PASSWORD="your_mongodb_password"
-MONGODB_URI="mongodb+srv://<username>:<password>@cluster0.r8tp84b.mongodb.net/RYDEX"
+MONGODB_URI="mongodb+srv://<username>:<password>@cluster0.r8tp84b.mongodb.net/DriveFlow"
 
 # NextAuth Credentials
 AUTH_SECRET="your-random-secret-string"
@@ -61,7 +61,7 @@ AUTH_GOOGLE_SECRET="your-google-client-secret"
 
 ## Admin DB Setup
 
-1. Create a MongoDB database (Atlas or local) named `RYDEX`.
+1. Create a MongoDB database (Atlas or local) named `DRIVEFLOW`.
 2. Create an admin user with read/write permissions on the database:
    ```bash
    # In MongoDB shell
@@ -74,12 +74,14 @@ AUTH_GOOGLE_SECRET="your-google-client-secret"
    ```
 3. Update `MONGODB_URI` in `.env.local` with the admin credentials:
    ```
-   MONGODB_URI="mongodb+srv://admin:<password>@cluster0.r8tp84b.mongodb.net/RYDEX"
+   MONGODB_URI="mongodb+srv://admin:<password>@cluster0.r8tp84b.mongodb.net/DRIVEFLOW"
    ```
 
 ## Authentication (NextAuth.js)
 
-This project uses **NextAuth.js v5** with **Google OAuth** for authentication.
+This project uses **NextAuth.js v5** with Two Provider 
+1. **Google OAuth** for authentication.
+2. **Credentials** for authentication.
 
 ### Setup Google OAuth
 1. Go to [Google Cloud Console](https://console.cloud.google.com/).
@@ -124,7 +126,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Project Structure
 
 ```
-rydex/
+driceflow/
 ├── src/            # Application source code
 ├── public/         # Static assets
 ├── app/            # Next.js App Router pages & layouts
