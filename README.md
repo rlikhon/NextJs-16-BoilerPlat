@@ -12,6 +12,8 @@ A modern full-stack web application built with **Next.js**, **TypeScript**, **Ta
 | Database    | [MongoDB](https://mongodb.com) + [Mongoose](https://mongoosejs.com) |
 | Auth        | [NextAuth.js v5](https://next-auth.js.org) (Google OAuth) |
 | Password    | [bcryptjs](https://www.npmjs.com/package/bcryptjs) |
+| Motion      | [motion](https://motion.dev/docs/react) |
+| Lucide icon | [lucide](https://lucide.dev/guide/installation) |
 | Package Mgr | npm                                     |
 
 ## Prerequisites
@@ -38,9 +40,19 @@ This installs the following packages (as defined in `package.json`):
 npm i bcryptjs mongoose
 ```
 
+**Animation dependencies:**
+```bash
+npm install motion
+```
+
 **Development dependencies:**
 ```bash
 npm install next-auth@beta
+```
+
+**Lucide icon library dependencies:**
+```bash
+npm install lucide-react
 ```
 
 ## Environment Variables
