@@ -14,6 +14,7 @@ A modern full-stack web application built with **Next.js**, **TypeScript**, **Ta
 | Password    | [bcryptjs](https://www.npmjs.com/package/bcryptjs) |
 | Motion      | [motion](https://motion.dev/docs/react) |
 | Lucide icon | [lucide](https://lucide.dev/guide/installation) |
+| Axios       | [axios](https://www.npmjs.com/package/axios) |
 | Package Mgr | npm                                     |
 
 ## Prerequisites
@@ -37,7 +38,7 @@ This installs the following packages (as defined in `package.json`):
 
 **Runtime dependencies:**
 ```bash
-npm i bcryptjs mongoose
+npm i bcryptjs mongoose axios
 ```
 
 **Animation dependencies:**
