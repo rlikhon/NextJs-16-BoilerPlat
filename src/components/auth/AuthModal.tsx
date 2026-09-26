@@ -12,7 +12,7 @@ type propType = {
 };
 type stepType = "login" | "signup" | "otp";
 function AuthModal({ open, onClose }: propType) {
-  const [step, setStep] = useState<stepType>("otp");
+  const [step, setStep] = useState<stepType>("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,8 +43,32 @@ function AuthModal({ open, onClose }: propType) {
           }
         }
       );
+      console.log("Auth Response Data Object:", data);
+      setStep("otp");
+      setLoading(false);
+    } catch (error: any) {
+      setLoading(false);
+      console.error("Axios Request Failure Log:", error.response);
       
-      console.log("Registration Successful:", data); 
+      const serverMessage = error?.response?.data?.message;
+      setError(serverMessage ?? "Bad Request: Please check your form fields.");
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        "/api/auth/verify-otp", 
+        { email, otp: otp.join("") },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      console.log("OTP Verify Data:", data);
+      setStep("login");
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
@@ -104,10 +128,6 @@ function AuthModal({ open, onClose }: propType) {
     if (!value && index !== 0) {
       document.getElementById(`otp-${index - 1}`)?.focus();
     }
-  };
-
-  const handleVerifyOtp = async () => {
-    console.log("OTP submit button clicked");
   };
 
   return (
@@ -288,8 +308,10 @@ function AuthModal({ open, onClose }: propType) {
                         }                        
                       </div>
 
+                      {error && <p className="text-red-500 text-sm">*{error}</p>}
+
                       <button
-                        onClick={handleVerifyOtp}
+                        onClick={handleVerifyEmail}
                         disabled={loading}
                         className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex items-center justify-center"
                       >

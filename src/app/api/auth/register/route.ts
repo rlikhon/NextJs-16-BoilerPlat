@@ -1,9 +1,11 @@
 import connectDb from "@/lib/db";
+import sendMail from "@/lib/sendMail";
 import User from "@/models/user.model";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+    let user = null;
     try {
         await connectDb();
         const {name, email, password} = await request.json();
@@ -25,13 +27,15 @@ export async function POST(request: NextRequest) {
                 status: 400
             });
         }
-        // Email Already Exists
-        if(existingUser) {
+        
+        // Email Already Exists and OTP verified
+        if(existingUser && existingUser.isEmailVerified) {
             return NextResponse.json({
-                message: "User already exists",
+                message: "Verified User already exists.",
                 status: 400
             });
         }
+        
         // Password Length Check
         if(password.length < 6) {
             return NextResponse.json({
@@ -41,19 +45,38 @@ export async function POST(request: NextRequest) {
         }
         // Hash Password
         const hashedPassword = await bcrypt.hash(password, 10);
-        // Create User
-        const user = await User.create({
-            name, 
-            email, 
-            password: hashedPassword
-        });
-        console.log(user);
+        const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+        const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+                
+        // Email Already Exists But not OTP verified
+        if(existingUser && !existingUser.isEmailVerified) {            
+            existingUser.otp = otp;
+            existingUser.otpExpiresAt = otpExpiresAt;
 
+            user = await existingUser.save();
+        } else {
+            // Create User
+            user = await User.create({
+                name, 
+                email, 
+                password: hashedPassword,
+                otp,
+                otpExpiresAt
+            });            
+        }
+
+        await sendMail(
+            email,
+            "Your OTP for DriveFlow Registration email verification",
+            `<h2>Your Email varification OTP is <strong>${otp}</strong></h2>`
+        );
+        
+        console.log("Created User => ", user);
         return NextResponse.json({
             data: user,
             message: "User created",
             status: 201
-        });        
+        });  
     } catch (error) {
         console.log(error);
         return NextResponse.json({

@@ -15,6 +15,7 @@ A modern full-stack web application built with **Next.js**, **TypeScript**, **Ta
 | Motion      | [motion](https://motion.dev/docs/react) |
 | Lucide icon | [lucide](https://lucide.dev/guide/installation) |
 | Axios       | [axios](https://www.npmjs.com/package/axios) |
+| Nodemailer  | [nodemailer](https://nodemailer.com/) |
 | Package Mgr | npm                                     |
 
 ## Prerequisites
@@ -54,6 +55,10 @@ npm install next-auth@beta
 **Lucide icon library dependencies:**
 ```bash
 npm install lucide-react
+```
+**Mail sender dependencies:**
+```bash
+npm install nodemailer
 ```
 
 ## Environment Variables

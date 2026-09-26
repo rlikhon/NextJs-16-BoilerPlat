@@ -7,6 +7,11 @@ interface IUser{
     password: string
     mobile?: string
     role: "user" | "deliveryBoy" | "admin"
+    isEmailVerified?: boolean
+    otp?: string
+    otpExpiresAt?: Date
+    createdAt?: Date
+    updatedAt?: Date
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -32,6 +37,18 @@ const userSchema = new mongoose.Schema<IUser>({
         type: String,
         enum: ["user", "deliveryBoy", "admin"],
         default: "user"
+    },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+    otp: {
+        type: String,
+        required: false
+    },
+    otpExpiresAt: {
+        type: Date,
+        required: false
     }
 }, {
     timestamps: true
