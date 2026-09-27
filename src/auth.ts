@@ -20,10 +20,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     placeholder: "*****",
                 },
             },
-            authorize: async (credentials, req) => {
+            authorize: async (credentials) => {
                 let user = null
                 if (!credentials?.email || !credentials?.password) {
-                    throw new Error("Invalid credentials")
+                    throw new Error("Invalid Email or Password")
                 }
                 await connectDb();
                 user = await User.findOne({email: credentials.email});
@@ -31,10 +31,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (!user) {
                     throw new Error("User does not exist");
                 }
-                const isPasswordCorrect = await bcrypt.compare(credentials.password as string, user.password);
-                if (!isPasswordCorrect) {
+
+                if (!user.isEmailVerified) {
+                   throw new Error("Please verify your email address first.");
+                }
+                
+                const isPasswordMatch = await bcrypt.compare(
+                  credentials.password as string,
+                  user.password
+                );
+
+                if (!isPasswordMatch) {
                     throw new Error("Incorrect password");
                 }
+                
                 return {
                     id: user._id,
                     name: user.name,

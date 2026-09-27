@@ -1,16 +1,18 @@
-import { Mail, X, Lock, User, Loader2 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+'use client';
+import { useEffect, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 import axios from "axios";
-//import Link from "next/link";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { Mail, X, Lock, User, Loader2 } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { signIn, useSession } from "next-auth/react";
+import { isValidEmail, isValidOTPFormate } from "@/utils/Helper";
 
 type propType = {
   open: boolean;
   onClose: () => void;
 };
 type stepType = "login" | "signup" | "otp";
+
 function AuthModal({ open, onClose }: propType) {
   const [step, setStep] = useState<stepType>("login");
   const [loading, setLoading] = useState(false);
@@ -19,9 +21,16 @@ function AuthModal({ open, onClose }: propType) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-
-  const { data: session } = useSession();
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  
+  const { data: session, status } = useSession();
+  
+  useEffect(() => {
+    if (session?.user) {
+      //onClose();
+    }
+  }, [session, onClose]);
+ 
 
   const handleSignUp = async () => {
     if (!name || !email || !password) {
@@ -31,101 +40,110 @@ function AuthModal({ open, onClose }: propType) {
     
     setLoading(true);
     setError(""); 
-
+    const trimmedEmail = email.trim()
     try {
-      const { data } = await axios.post(
-        "/api/auth/register", 
-        { name, email, password },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
+      const { data } = await axios.post("/api/auth/register", { name, email: trimmedEmail, password });
       console.log("Auth Response Data Object:", data);
-      
       setStep("otp");
       setLoading(false);
-    } catch (error: any) {
-      setLoading(false);
-      console.error("Axios Request Failure Log:", error.response);
+    } catch (err: any) {      
+      console.error("Axios Request Failure Log:", err.response);      
       
-      const serverMessage = error?.response?.data?.message;
-      setError(serverMessage ?? "Bad Request: Please check your form fields.");
+      const serverMessage = err?.response?.data?.message ?? err?.response?.data;
+      setError(typeof serverMessage === "string" ? serverMessage : "This email is already registered.");
+    } finally {      
+      if (!error) {
+        setLoading(false);
+      }
     }
   };
 
+
   const handleVerifyEmail = async () => {
+    const otpCode = otp.join("");
+    if (otpCode.length < 6) {
+      setError("Please complete the 6-digit verification code.");
+      return;
+    }
+
     setLoading(true);
+    setError("");
+
     try {
-      const { data } = await axios.post(
-        "/api/auth/verify-otp", 
-        { email, otp: otp.join("") },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      console.log("OTP Verify Data:", data);
+      const { data } = await axios.post("/api/auth/verify-otp", { email, otp: otpCode });
+      console.log("OTP Verify API Response:", data);
       setOtp(["", "", "", "", "", ""]);
       setStep("login");
+    } catch (err: any) {
+      console.error("Axios OTP Failure:", err.response);
+      const serverMessage = err?.response?.data?.message;
+      setError(serverMessage ?? "Invalid code. Please try again.");
+    } finally {
       setLoading(false);
-    } catch (error: any) {
-      setLoading(false);
-      console.error("Axios Request Failure Log:", error.response);
-      
-      const serverMessage = error?.response?.data?.message;
-      setError(serverMessage ?? "Bad Request: Please check your form fields.");
     }
   };
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      setError("Email and Password are required.");
+      return;
+    }
+    
+    if (!isValidEmail(email)) {
+      setError("Invalid email format.");
+      return;
+    }
+
     setLoading(true);
     setError("");
-    console.log("Login button clicked");
     
     try {
-      // client-safe method communicates directly with /api/auth handlers
       const res = await signIn("credentials", {
         email, 
         password, 
-        redirect: false // Stops immediate full-page reloads on failure
+        redirect: false 
       });
 
-      console.log("Auth Response Data Object:", res);
+      console.log("Auth.js Login Attempt Response:", res);
       
       if (res?.error) {
-        setError("Invalid email or password credentials."); //
-      } else {
-        console.log("Logged in successfully! Route user to dashboard.");
-        // window.location.href = "/dashboard";
-      }
-      
-      setLoading(false);
+        setError("Invalid email or password credentials."); 
+        setLoading(false);
+        return;
+      }            
     } catch (err) {
-      setLoading(false);
       console.error("Client login action failed:", err);
+      setError("A network error occurred. Please try again.");
+      setLoading(false);
+    } finally {      
+      if (!error) {
+        setLoading(false);
+      }
     }
   };
 
   const handleGoogleLogin = async () => {
-    console.log("Google login button clicked");
-    const res = await signIn("google");
-    console.log("Auth Response Data Object:", res);
+    setError("");
+    try {
+      await signIn("google", { callbackUrl: "/" });
+    } catch (err) {
+      console.error("Google Auth failed:", err);
+      setError("Google authentication encountered a problem.");
+    }
   };
   
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^[0-9]?$/.test(value) && value !== "") return;
+    if (!isValidOTPFormate(value) && value !== "") return;
     
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
+    // Auto-focus next input field wrapper element
     if (value && index !== otp.length - 1) {
       document.getElementById(`otp-${index + 1}`)?.focus();
     }
-
+    // Auto-focus backward on backspace tracking
     if (!value && index !== 0) {
       document.getElementById(`otp-${index - 1}`)?.focus();
     }
@@ -211,19 +229,32 @@ function AuthModal({ open, onClose }: propType) {
                           />
                         </div>
 
+                        {/* ✨ FIXED: Added the missing UI error display block to show backend errors */}
+                        {error && <p className="text-red-500 text-xs font-semibold animate-pulse">*{error}</p>}
+
                         <button 
                           onClick={handleLogin}
                           disabled={loading}
-                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex items-center justify-center">Login</button>
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex items-center justify-center"
+                        >
+                          Login
+                        </button>
                       </div>
+                      
                       <div className="mt-6 text-center text-sm text-gray-500">
-                        Don't have an account? 
-                        <div onClick={() => setStep("signup")} className="font-semibold text-emerald-500 cursor-pointer hover:text-black hover:underline select-none">
+                        Don't have an account?{" "}
+                        <span 
+                          role="button"
+                          onClick={() => { setStep("signup"); setError(""); }} 
+                          className="font-semibold text-emerald-500 cursor-pointer hover:text-black hover:underline select-none"
+                        >
                           Sign Up
-                        </div>
+                        </span>
                       </div>
                     </motion.div>
                   )}
+
+
 
                   {step == "signup" && (
                     <motion.div
@@ -239,7 +270,7 @@ function AuthModal({ open, onClose }: propType) {
                             placeholder="Fullname"
                             className="w-full bg-transparent outline-none text-sm"
                             onChange={(e) => setName(e.target.value)}
-
+                            value={name} // Added value binding to ensure input is fully controlled
                           />
                         </div>
                         
@@ -268,21 +299,28 @@ function AuthModal({ open, onClose }: propType) {
                         {error && <p className="text-red-500 text-sm">*{error}</p>}
 
                         <button
-                         disabled={!name || !email || !password || loading}
-                         onClick={handleSignUp}
-                         className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex justify-center items-center"
-                         >
-                          {!loading ? "Send OTP" : <Loader2 className="animate-spin" />}
+                          disabled={!name || !email || !password || loading}
+                          onClick={handleSignUp}
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex justify-center items-center disabled:opacity-50"
+                        >
+                          {!loading ? "Send OTP" : <Loader2 className="animate-spin" size={18} />}
                         </button>
                       </div>
+
                       <div className="mt-6 text-center text-sm text-gray-500">
-                        Already have an account? 
-                        <div onClick={() => setStep("login")} className="font-semibold text-emerald-500 cursor-pointer hover:text-black hover:underline select-none">
+                        Already have an account?{" "}
+                        {/* ✨ FIXED: Changed from 'div' to 'span' with 'role="button"' to ensure completely standard HTML parsing */}
+                        <span 
+                          role="button"
+                          onClick={() => setStep("login")} 
+                          className="font-semibold text-emerald-500 cursor-pointer hover:text-black hover:underline select-none"
+                        >
                           Login
-                        </div>
+                        </span>
                       </div>
                     </motion.div>
                   )}
+
 
                   {step == "otp" && (
                     <motion.div
@@ -301,7 +339,8 @@ function AuthModal({ open, onClose }: propType) {
                               type="text"
                               className="w-12 h-12 text-center text-lg border border-gray-200 rounded focus:outline-none focus:border-gray-400"
                               maxLength={1}
-                              value={digit[i]}
+                              // ✨ FIXED: Changed from digit[i] to just digit so data state links cleanly
+                              value={digit} 
                               placeholder="*"
                               onChange={(e) => handleOtpChange(i, e.target.value)}
                             />
@@ -309,17 +348,18 @@ function AuthModal({ open, onClose }: propType) {
                         }                        
                       </div>
 
-                      {error && <p className="text-red-500 text-sm">*{error}</p>}
+                      {error && <p className="text-red-500 text-sm mt-4">*{error}</p>}
 
                       <button
                         onClick={handleVerifyEmail}
-                        disabled={loading}
-                        className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex items-center justify-center"
+                        disabled={loading || otp.join("").length < 6} // Disabled unless all 6 numbers are typed
+                        className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition-opacity flex items-center justify-center disabled:opacity-50"
                       >
-                        {!loading ? "Verify" : <Loader2 className="animate-spin" />}
+                        {!loading ? "Verify" : <Loader2 className="animate-spin" size={18} />}
                       </button>
                     </motion.div>
                   )}
+
                 </div>
               </div>
             </motion.div>
