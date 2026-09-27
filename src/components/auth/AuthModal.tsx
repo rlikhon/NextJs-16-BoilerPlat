@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import axios from "axios";
 //import Link from "next/link";
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { signIn, useSession } from "next-auth/react";
 
 type propType = {
@@ -22,7 +22,6 @@ function AuthModal({ open, onClose }: propType) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
   const { data: session } = useSession();
-  console.log(session);
 
   const handleSignUp = async () => {
     if (!name || !email || !password) {
@@ -44,6 +43,7 @@ function AuthModal({ open, onClose }: propType) {
         }
       );
       console.log("Auth Response Data Object:", data);
+      
       setStep("otp");
       setLoading(false);
     } catch (error: any) {
@@ -68,6 +68,7 @@ function AuthModal({ open, onClose }: propType) {
         }
       );
       console.log("OTP Verify Data:", data);
+      setOtp(["", "", "", "", "", ""]);
       setStep("login");
       setLoading(false);
     } catch (error: any) {
