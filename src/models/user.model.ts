@@ -1,20 +1,19 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document, model, models } from "mongoose";
 
-interface IUser{
-    _id?: mongoose.Types.ObjectId
-    name: string
-    email: string
-    password: string
-    mobile?: string
-    role: "user" | "deliveryBoy" | "admin"
-    isEmailVerified?: boolean
-    otp?: string
-    otpExpiresAt?: Date
-    createdAt?: Date
-    updatedAt?: Date
+export interface IUser extends Document {    
+    name: string;
+    email: string;
+    password: string;
+    mobile?: string;
+    role: "user" | "partner" | "admin";
+    isEmailVerified?: boolean;
+    otp?: string;
+    otpExpiresAt?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
 
-const userSchema = new mongoose.Schema<IUser>({
+const userSchema = new Schema<IUser>({
     name: {
         type: String,
         required: true
@@ -22,12 +21,14 @@ const userSchema = new mongoose.Schema<IUser>({
     email: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        lowercase: true,
+        trim: true
     },
     password: {
         type: String,
         required: true,
-        min: 6
+        minlength: 6
     },
     mobile: {
         type: String,
@@ -35,7 +36,7 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     role: {
         type: String,
-        enum: ["user", "deliveryBoy", "admin"],
+        enum: ["user", "partner", "admin"], 
         default: "user"
     },
     isEmailVerified: {
@@ -54,6 +55,6 @@ const userSchema = new mongoose.Schema<IUser>({
     timestamps: true
 });
 
-const User = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+const User = models.User || model<IUser>("User", userSchema);
 
 export default User;

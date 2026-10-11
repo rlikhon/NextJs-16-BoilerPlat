@@ -16,6 +16,7 @@ A modern full-stack web application built with **Next.js**, **TypeScript**, **Ta
 | Lucide icon | [lucide](https://lucide.dev/guide/installation) |
 | Axios       | [axios](https://www.npmjs.com/package/axios) |
 | Nodemailer  | [nodemailer](https://nodemailer.com/) |
+| Redux  | [redux](https://redux.js.org/toolkit/introduction/getting-started) |
 | Package Mgr | npm                                     |
 
 ## Prerequisites
@@ -59,6 +60,16 @@ npm install lucide-react
 **Mail sender dependencies:**
 ```bash
 npm install nodemailer
+```
+
+**Redux Toolkit dependencies:**
+```bash
+npm install @reduxjs/toolkit
+```
+
+**React bindings dependencies:**
+```bash
+npm install react-redux
 ```
 
 ## Environment Variables

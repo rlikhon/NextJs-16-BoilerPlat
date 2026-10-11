@@ -23,11 +23,11 @@ function AuthModal({ open, onClose }: propType) {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   
-  const { data: session, status } = useSession();
-  
+  const session = useSession();
+  //console.log("User Session:", session);
   useEffect(() => {
-    if (session?.user) {
-      //onClose();
+    if (session?.data?.user) {
+      onClose();      
     }
   }, [session, onClose]);
  
@@ -133,19 +133,22 @@ function AuthModal({ open, onClose }: propType) {
   };
   
   const handleOtpChange = (index: number, value: string) => {
-    if (!isValidOTPFormate(value) && value !== "") return;
-    
+    console.log(`OTP Input Change at index ${index}:`, value);
+    //if (!isValidOTPFormate(value) && value !== "") return;
+    const singleChar = value.slice(-1);
+    if (!/^[0-9]?$/.test(singleChar) && singleChar !== "") return;
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = singleChar; 
     setOtp(newOtp);
 
-    // Auto-focus next input field wrapper element
-    if (value && index !== otp.length - 1) {
-      document.getElementById(`otp-${index + 1}`)?.focus();
+    if (singleChar && index !== otp.length - 1) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      nextInput?.focus();
     }
-    // Auto-focus backward on backspace tracking
-    if (!value && index !== 0) {
-      document.getElementById(`otp-${index - 1}`)?.focus();
+
+    if (!singleChar && index !== 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
     }
   };
 
