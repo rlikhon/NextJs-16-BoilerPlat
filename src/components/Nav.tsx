@@ -156,7 +156,7 @@ const Nav = () => {
                           {userData.role !== "partner" && (
                             <>
                               <hr className="my-2 border-gray-100" />
-                              <div className="flex items-center gap-3 py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-xl cursor-pointer transition">
+                              <div onClick={()=>router.push("/partner/onboarding/vehicle")} className="flex items-center gap-3 py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-xl cursor-pointer transition">
                                 <div className="flex -space-x-1.5">
                                   <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center border border-white">
                                     <Bike size={10} className="text-gray-500" />
@@ -327,7 +327,7 @@ const Nav = () => {
                   <>
                     <hr className="my-2 border-gray-100" />
                     <div className="flex items-center gap-3 py-2 px-3 text-gray-700 hover:bg-gray-50 rounded-xl cursor-pointer transition">
-                      <div className="flex -space-x-1.5">
+                      <div onClick={()=> router.push("/partner/onboarding/vehicle")} className="flex -space-x-1.5">
                         <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center border border-white">
                           <Bike size={10} className="text-gray-500" />
                         </div>
