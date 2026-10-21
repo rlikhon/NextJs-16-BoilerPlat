@@ -5,6 +5,7 @@ import { ArrowLeft, FileCheck, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const page = () => {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div

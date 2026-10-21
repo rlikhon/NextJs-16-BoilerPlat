@@ -7,6 +7,7 @@ interface IPartnerBank {
     bankName: string;
     branchName: string;
     routingNumber: string;
+    mobile: string;
     status:"not_added" | "added" | "verified";
     createdAt?: Date;
     updatedAt?: Date;
@@ -35,6 +36,10 @@ const partnerBankSchema = new mongoose.Schema<IPartnerBank>({
         required: true
     },
     routingNumber: {
+        type: String,
+        required: true
+    },
+    mobile: {
         type: String,
         required: true
     },
