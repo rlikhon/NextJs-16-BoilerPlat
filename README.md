@@ -16,7 +16,8 @@ A modern full-stack web application built with **Next.js**, **TypeScript**, **Ta
 | Lucide icon | [lucide](https://lucide.dev/guide/installation) |
 | Axios       | [axios](https://www.npmjs.com/package/axios) |
 | Nodemailer  | [nodemailer](https://nodemailer.com/) |
-| Redux  | [redux](https://redux.js.org/toolkit/introduction/getting-started) |
+| Redux       | [redux](https://redux.js.org/toolkit/introduction/getting-started) |
+| Cloudinary  | [redux](https://cloudinary.com) |
 | Package Mgr | npm                                     |
 
 ## Prerequisites
@@ -70,6 +71,11 @@ npm install @reduxjs/toolkit
 **React bindings dependencies:**
 ```bash
 npm install react-redux
+```
+
+**Cloudinary dependencies:**
+```bash
+npm install cloudinary
 ```
 
 ## Environment Variables
