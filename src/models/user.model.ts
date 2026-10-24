@@ -10,6 +10,7 @@ export interface IUser extends Document {
     otp?: string;
     otpExpiresAt?: Date;    
     partnerOnBoardingSteps?: number;
+    mobileNumber?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -49,6 +50,10 @@ const userSchema = new Schema<IUser>({
         min: 0,
         max: 8,
         default: 0
+    },
+    mobileNumber: {
+        type: String,
+        required: false
     },
     otp: {
         type: String,

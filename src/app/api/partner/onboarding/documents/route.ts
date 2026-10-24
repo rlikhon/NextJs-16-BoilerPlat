@@ -92,7 +92,12 @@ export async function GET(req: NextRequest) {
     }
 
     const partnerDocs = await PartnerDocs.findOne({ owner: user._id });
-    return Response.json(partnerDocs, { status: 200 });
+    
+    if(partnerDocs){
+        return Response.json(partnerDocs, { status: 200 });
+    } else {
+        return null;
+    }
   } catch (error) {
     console.log(error);
     return Response.json(
